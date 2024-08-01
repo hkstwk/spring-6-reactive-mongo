@@ -56,6 +56,20 @@ class BeerServiceImplTest {
     }
 
     @Test
+    void testFindByBeerStyle() {
+        BeerDTO savedBeerDTO = getSavedBeerDto();
+        AtomicBoolean atomicBoolean = new AtomicBoolean();
+
+        beerService.findByBeerStyle(savedBeerDTO.getBeerStyle())
+                .subscribe(dto -> {
+                    atomicBoolean.set(true);
+                    System.out.println(dto.toString());
+                });
+
+        await().untilTrue(atomicBoolean);
+    }
+
+    @Test
     void saveBeer() throws InterruptedException {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
@@ -73,7 +87,7 @@ class BeerServiceImplTest {
     void getBeerById() {
     }
 
-    public static Beer getTestBeer(){
+    public static Beer getTestBeer() {
         return Beer.builder()
                 .beerName("Karmeliet")
                 .beerStyle("Triple")
@@ -163,11 +177,11 @@ class BeerServiceImplTest {
 
     }
 
-    public BeerDTO getSavedBeerDto(){
+    public BeerDTO getSavedBeerDto() {
         return beerService.saveBeer(Mono.just(getTestBeerDto())).block();
     }
 
-    public static BeerDTO getTestBeerDto(){
+    public static BeerDTO getTestBeerDto() {
         return new BeerMapperImpl().beerToBeerDTO(getTestBeer());
     }
 }
