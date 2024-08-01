@@ -41,6 +41,21 @@ class BeerServiceImplTest {
     }
 
     @Test
+    void testFindFirstBeerByName() {
+        BeerDTO savedBeerDTO = getSavedBeerDto();
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+
+        Mono<BeerDTO> foundDTO = beerService.findFirstByBeerName(savedBeerDTO.getBeerName());
+
+        foundDTO.subscribe(dto -> {
+            atomicBoolean.set(true);
+            System.out.println(dto.toString());
+        });
+
+        await().untilTrue(atomicBoolean);
+    }
+
+    @Test
     void saveBeer() throws InterruptedException {
         AtomicBoolean atomicBoolean = new AtomicBoolean(false);
 
