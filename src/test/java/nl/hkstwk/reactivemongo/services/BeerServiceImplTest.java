@@ -90,7 +90,7 @@ class BeerServiceImplTest {
     public static Beer getTestBeer() {
         return Beer.builder()
                 .beerName("Karmeliet")
-                .beerStyle("Triple")
+                .beerStyle("Pale Ale")
                 .upc("12345")
                 .price(BigDecimal.TEN)
                 .quantityOnHand(24)
