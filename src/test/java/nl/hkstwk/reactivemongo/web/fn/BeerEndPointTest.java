@@ -2,21 +2,21 @@ package nl.hkstwk.reactivemongo.web.fn;
 
 import nl.hkstwk.reactivemongo.domain.Beer;
 import nl.hkstwk.reactivemongo.model.BeerDTO;
+import nl.hkstwk.reactivemongo.services.BeerServiceImplTest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.internal.matchers.GreaterThan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-import java.math.BigDecimal;
+import java.util.List;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
+import static nl.hkstwk.reactivemongo.services.BeerServiceImplTest.getTestBeer;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest
@@ -39,10 +39,12 @@ class BeerEndPointTest {
     @Test
     @Order(2)
     void testGetBeerById() {
-        webTestClient.get().uri(BeerRouterConfig.BEER_PATH_ID, 1)
+        BeerDTO beerDTO = getSavedTestBeer();
+
+        webTestClient.get().uri(BeerRouterConfig.BEER_PATH_ID, beerDTO.getId())
                 .exchange()
                 .expectStatus().isOk()
-                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectHeader().valueEquals("Content-type", "application/json")
                 .expectBody(BeerDTO.class);
     }
 
@@ -140,13 +142,16 @@ class BeerEndPointTest {
                 .expectStatus().isNotFound();
     }
 
-    public static Beer getTestBeer(){
-        return Beer.builder()
-                .beerName("Karmeliet")
-                .beerStyle("TRIPLE")
-                .upc("abcde")
-                .price(BigDecimal.valueOf(13.75))
-                .quantityOnHand(10)
-                .build();
+    public BeerDTO getSavedTestBeer(){
+        FluxExchangeResult<BeerDTO> beerDTOFluxExchangeResult = webTestClient.post().uri(BeerRouterConfig.BEER_PATH)
+                .body(Mono.just(BeerServiceImplTest.getTestBeer()), Beer.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .returnResult(BeerDTO.class);
+
+        List<String> location = beerDTOFluxExchangeResult.getResponseHeaders().get("Location");
+
+        return webTestClient.get().uri(BeerRouterConfig.BEER_PATH)
+                .exchange().returnResult(BeerDTO.class).getResponseBody().blockFirst();
     }
 }

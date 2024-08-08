@@ -22,7 +22,7 @@ import static org.awaitility.Awaitility.await;
 
 @Slf4j
 @SpringBootTest
-class BeerServiceImplTest {
+public class BeerServiceImplTest {
 
     @Autowired
     BeerService beerService;
@@ -90,7 +90,7 @@ class BeerServiceImplTest {
     public static Beer getTestBeer() {
         return Beer.builder()
                 .beerName("Karmeliet")
-                .beerStyle("Pale Ale")
+                .beerStyle("Triple")
                 .upc("12345")
                 .price(BigDecimal.TEN)
                 .quantityOnHand(24)
@@ -137,7 +137,7 @@ class BeerServiceImplTest {
         BeerDTO updatedDto = beerService.saveBeer(Mono.just(savedBeerDto)).block();
 
         //verify exists in db
-        BeerDTO fetchedDto = beerService.getById(updatedDto.getId()).block();
+        BeerDTO fetchedDto = beerService.getBeerById(updatedDto.getId()).block();
         assertThat(fetchedDto.getBeerName()).isEqualTo(newName);
     }
 
@@ -154,7 +154,7 @@ class BeerServiceImplTest {
                     return savedBeerDto;
                 })
                 .flatMap(beerService::saveBeer) // save updated beer
-                .flatMap(savedUpdatedDto -> beerService.getById(savedUpdatedDto.getId())) // get from db
+                .flatMap(savedUpdatedDto -> beerService.getBeerById(savedUpdatedDto.getId())) // get from db
                 .subscribe(dtoFromDb -> {
                     atomicDto.set(dtoFromDb);
                 });
@@ -169,7 +169,7 @@ class BeerServiceImplTest {
 
         beerService.deleteBeerById(beerToDelete.getId()).block();
 
-        Mono<BeerDTO> expectedEmptyBeerMono = beerService.getById(beerToDelete.getId());
+        Mono<BeerDTO> expectedEmptyBeerMono = beerService.getBeerById(beerToDelete.getId());
 
         BeerDTO emptyBeer = expectedEmptyBeerMono.block();
 

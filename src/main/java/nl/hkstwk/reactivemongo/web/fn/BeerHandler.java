@@ -13,6 +13,12 @@ import reactor.core.publisher.Mono;
 public class BeerHandler {
     private final BeerService beerService;
 
+    public Mono<ServerResponse> getBeerById(ServerRequest request){
+        String beerId = request.pathVariable("beerId");
+        return ServerResponse.ok()
+                .body(beerService.getBeerById(beerId), BeerDTO.class);
+    }
+
     public Mono<ServerResponse> listBeers(ServerRequest request){
         return ServerResponse.ok()
                 .body(beerService.listBeers(), BeerDTO.class);
