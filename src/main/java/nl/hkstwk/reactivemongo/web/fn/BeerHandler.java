@@ -6,7 +6,10 @@ import nl.hkstwk.reactivemongo.services.BeerService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+
+import static nl.hkstwk.reactivemongo.web.fn.BeerRouterConfig.BEER_PATH_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,5 +25,14 @@ public class BeerHandler {
     public Mono<ServerResponse> listBeers(ServerRequest request){
         return ServerResponse.ok()
                 .body(beerService.listBeers(), BeerDTO.class);
+    }
+
+    public Mono<ServerResponse> createNewBeer(ServerRequest request){
+        return beerService.saveBeer(request.bodyToMono(BeerDTO.class))
+                .flatMap(beerDTO -> ServerResponse
+                        .created(UriComponentsBuilder
+                                .fromPath(BEER_PATH_ID)
+                                .build(beerDTO.getId()))
+                        .build());
     }
 }
