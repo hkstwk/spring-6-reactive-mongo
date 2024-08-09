@@ -90,7 +90,6 @@ class BeerEndPointTest {
                 .header("Content-Type", "application/json")
                 .exchange()
                 .expectStatus().isNoContent();
-
     }
 
     @Test
