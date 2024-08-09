@@ -1,7 +1,6 @@
 package nl.hkstwk.reactivemongo.web.fn;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import nl.hkstwk.reactivemongo.model.BeerDTO;
 import nl.hkstwk.reactivemongo.services.BeerService;
 import org.springframework.http.HttpStatus;
@@ -14,6 +13,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebInputException;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static nl.hkstwk.reactivemongo.web.fn.BeerRouterConfig.BEER_PATH_ID;
@@ -40,8 +40,16 @@ public class BeerHandler {
     }
 
     public Mono<ServerResponse> listBeers(ServerRequest request) {
+        Flux<BeerDTO> flux;
+
+        if (request.queryParam("beerStyle").isPresent()) {
+            flux = beerService.findByBeerStyle(request.queryParam("beerStyle").get());
+        } else {
+            flux = beerService.listBeers();
+        }
+
         return ServerResponse.ok()
-                .body(beerService.listBeers(), BeerDTO.class);
+                .body(flux, BeerDTO.class);
     }
 
     public Mono<ServerResponse> createNewBeer(ServerRequest request) {
