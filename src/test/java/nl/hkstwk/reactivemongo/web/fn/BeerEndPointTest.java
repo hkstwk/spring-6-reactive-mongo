@@ -116,11 +116,13 @@ class BeerEndPointTest {
 
     @Test
     void testPatchBeer() {
-        webTestClient.patch().uri(BeerRouterConfig.BEER_PATH_ID, 1)
-                .body(Mono.just(getTestBeer()), BeerDTO.class)
+        BeerDTO beerDTO = getSavedTestBeer();
+
+        webTestClient.patch().uri(BeerRouterConfig.BEER_PATH_ID, beerDTO.getId())
+                .body(Mono.just(beerDTO), BeerDTO.class)
                 .header("Content-Type", "application/json")
                 .exchange()
-                .expectStatus().isOk();
+                .expectStatus().isNoContent();
     }
 
     @Test
