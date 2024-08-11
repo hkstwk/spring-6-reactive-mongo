@@ -5,6 +5,7 @@ import nl.hkstwk.reactivemongo.mappers.CustomerMapper;
 import nl.hkstwk.reactivemongo.model.CustomerDTO;
 import nl.hkstwk.reactivemongo.repositories.CustomerRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,8 +17,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Flux<CustomerDTO> listCustomers() {
-       return customerRepository.findAll()
-               .map(customerMapper::customerToCustomerDTO);
+        return customerRepository.findAll()
+                .map(customerMapper::customerToCustomerDTO);
     }
 
     @Override
@@ -41,16 +42,30 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Mono<CustomerDTO> updateCustomer(String customerId, CustomerDTO customerDTO) {
-        return null;
+        return customerRepository.findById(customerId)
+                .map(foundCustomer -> {
+                    foundCustomer.setCustomerName(customerDTO.getCustomerName());
+                    return foundCustomer;
+                })
+                .flatMap(customerRepository::save)
+                .map(customerMapper::customerToCustomerDTO);
     }
 
     @Override
     public Mono<CustomerDTO> patchCustomer(String customerId, CustomerDTO customerDTO) {
-        return null;
+        return customerRepository.findById(customerId)
+                .map(foundCustomer -> {
+                    if (StringUtils.hasText(customerDTO.getCustomerName())) {
+                        foundCustomer.setCustomerName(customerDTO.getCustomerName());
+                    }
+                    return foundCustomer;
+                })
+                .flatMap(customerRepository::save)
+                .map(customerMapper::customerToCustomerDTO);
     }
 
     @Override
     public Mono<Void> deleteCustomer(String customerId) {
-        return null;
+        return customerRepository.deleteById(customerId);
     }
 }
