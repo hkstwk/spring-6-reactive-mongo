@@ -68,4 +68,11 @@ public class CustomerHandler {
                 .flatMap(savedCustomerDTO -> ServerResponse.noContent().build());
     }
 
+    public Mono<ServerResponse> deleteCustomerById(ServerRequest request) {
+        return customerService.getCustomerById(request.pathVariable("customerId"))
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+                .flatMap(customerDTO -> customerService.deleteCustomer(customerDTO.getId()))
+                .then(ServerResponse.noContent().build());
+    }
+
 }
