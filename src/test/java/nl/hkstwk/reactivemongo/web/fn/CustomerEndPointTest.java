@@ -1,7 +1,6 @@
 package nl.hkstwk.reactivemongo.web.fn;
 
 import nl.hkstwk.reactivemongo.domain.Customer;
-import nl.hkstwk.reactivemongo.model.BeerDTO;
 import nl.hkstwk.reactivemongo.model.CustomerDTO;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -12,10 +11,12 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -59,6 +60,28 @@ public class CustomerEndPointTest {
 
         return webTestClient.get().uri(CustomerRouterConfig.CUSTOMER_PATH)
                 .exchange().returnResult(CustomerDTO.class).getResponseBody().blockFirst();
+    }
+
+    @Test
+    @Order(3)
+    void testListCustomersByName() {
+        final String CUSTOMER_NAME = "De Rechter";
+        CustomerDTO testDto = getSavedTestCustomer();
+        testDto.setCustomerName(CUSTOMER_NAME);
+
+        //create test data
+        webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(testDto), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange();
+
+        webTestClient.get().uri(UriComponentsBuilder
+                        .fromPath(CustomerRouterConfig.CUSTOMER_PATH)
+                        .queryParam("customerName", CUSTOMER_NAME).build().toUri())
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().valueEquals("Content-Type", "application/json")
+                .expectBody().jsonPath("$.size()").value(equalTo(2));
     }
 
     public static Customer getTestCustomer() {

@@ -12,4 +12,6 @@ public interface CustomerService {
     Mono<CustomerDTO> updateCustomer(String customerId, CustomerDTO customerDTO);
     Mono<CustomerDTO> patchCustomer(String customerId, CustomerDTO customerDTO);
     Mono<Void> deleteCustomer(String customerId);
+
+    Flux<CustomerDTO> findByCustomerName(String customerName);
 }

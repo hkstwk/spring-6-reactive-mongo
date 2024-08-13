@@ -91,9 +91,16 @@ public class BootstrapData implements CommandLineRunner {
                         .lastModifiedDate(LocalDateTime.now())
                         .build();
 
+                Customer customer4 = Customer.builder()
+                        .customerName("De Rechter")
+                        .createdDate(LocalDateTime.now())
+                        .lastModifiedDate(LocalDateTime.now())
+                        .build();
+
                 customerRepository.save(customer1).subscribe();
                 customerRepository.save(customer2).subscribe();
                 customerRepository.save(customer3).subscribe();
+                customerRepository.save(customer4).subscribe();
             }
         });
     }

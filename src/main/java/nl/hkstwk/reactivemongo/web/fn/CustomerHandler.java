@@ -1,9 +1,7 @@
 package nl.hkstwk.reactivemongo.web.fn;
 
 import lombok.RequiredArgsConstructor;
-import nl.hkstwk.reactivemongo.model.BeerDTO;
 import nl.hkstwk.reactivemongo.model.CustomerDTO;
-import nl.hkstwk.reactivemongo.services.BeerService;
 import nl.hkstwk.reactivemongo.services.CustomerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -39,8 +37,15 @@ public class CustomerHandler {
     }
 
     public Mono<ServerResponse> listCustomers(ServerRequest request) {
+        Flux<CustomerDTO> flux;
+
+        if (request.queryParam("customerName").isPresent()) {
+            flux = customerService.findByCustomerName(request.queryParam("customerName").get());
+        } else {
+            flux = customerService.listCustomers();
+        }
         return ServerResponse.ok()
-                .body(customerService.listCustomers(), CustomerDTO.class);
+                .body(flux, CustomerDTO.class);
     }
 
 }

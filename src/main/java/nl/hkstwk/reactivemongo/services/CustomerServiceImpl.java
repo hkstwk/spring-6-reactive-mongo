@@ -28,6 +28,12 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public Flux<CustomerDTO> findByCustomerName(String customerName) {
+        return customerRepository.findByCustomerName(customerName)
+                .map(customerMapper::customerToCustomerDTO);
+    }
+
+    @Override
     public Mono<CustomerDTO> saveCustomer(Mono<CustomerDTO> customerDTO) {
         return customerDTO.map(customerMapper::customerDTOToCustomer)
                 .flatMap(customerRepository::save)
