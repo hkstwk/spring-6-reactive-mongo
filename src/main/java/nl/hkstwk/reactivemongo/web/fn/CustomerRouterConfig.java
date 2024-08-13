@@ -24,6 +24,7 @@ public class CustomerRouterConfig {
                 .GET(CUSTOMER_PATH, accept(MediaType.APPLICATION_JSON), customerHandler::listCustomers)
                 .GET(CUSTOMER_PATH_ID, accept(MediaType.APPLICATION_JSON), customerHandler::getCustomerById)
                 .POST(CUSTOMER_PATH, accept(MediaType.APPLICATION_JSON), customerHandler::createNewCustomer)
+                .PUT(CUSTOMER_PATH_ID, accept(MediaType.APPLICATION_JSON), customerHandler::updateCustomerById)
                 .build();
     }
 }

@@ -49,23 +49,10 @@ public class CustomerEndPointTest {
                 .expectBody(CustomerDTO.class);
     }
 
-    public CustomerDTO getSavedTestCustomer(){
-        FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
-                .body(Mono.just(getTestCustomer()), Customer.class)
-                .header("Content-Type", "application/json")
-                .exchange()
-                .returnResult(CustomerDTO.class);
-
-        List<String> location = customerDTOFluxExchangeResult.getResponseHeaders().get("Location");
-
-        return webTestClient.get().uri(CustomerRouterConfig.CUSTOMER_PATH)
-                .exchange().returnResult(CustomerDTO.class).getResponseBody().blockFirst();
-    }
-
     @Test
     @Order(3)
     void testListCustomersByName() {
-        final String CUSTOMER_NAME = "De Rechter";
+        final String CUSTOMER_NAME = "De eetkamer van Giethoorn";
         CustomerDTO testDto = getSavedTestCustomer();
         testDto.setCustomerName(CUSTOMER_NAME);
 
@@ -81,7 +68,7 @@ public class CustomerEndPointTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().valueEquals("Content-Type", "application/json")
-                .expectBody().jsonPath("$.size()").value(equalTo(2));
+                .expectBody().jsonPath("$.size()").value(equalTo(1));
     }
 
     @Test
@@ -94,6 +81,53 @@ public class CustomerEndPointTest {
                 .exchange()
                 .expectStatus().isCreated()
                 .expectHeader().exists("location");
+    }
+
+    @Test
+    void testCreateCustomerInvalidData() {
+        Customer testCustomer = getTestCustomer();
+        testCustomer.setCustomerName("");
+
+        webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(testCustomer), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    @Order(4)
+    void testUpdateCustomer() {
+        CustomerDTO customerDTO = getSavedTestCustomer();
+        customerDTO.setCustomerName("updated customer name");
+
+        webTestClient.put().uri(CustomerRouterConfig.CUSTOMER_PATH_ID, customerDTO.getId())
+                .body(Mono.just(customerDTO), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isNoContent();
+    }
+
+    @Test
+    void testUpdateCustomerNotFound() {
+        webTestClient.put().uri(CustomerRouterConfig.CUSTOMER_PATH_ID, 999)
+                .body(Mono.just(getTestCustomer()), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    public CustomerDTO getSavedTestCustomer() {
+        FluxExchangeResult<CustomerDTO> customerDTOFluxExchangeResult = webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(getTestCustomer()), Customer.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .returnResult(CustomerDTO.class);
+
+        List<String> location = customerDTOFluxExchangeResult.getResponseHeaders().get("Location");
+
+        return webTestClient.get().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .exchange().returnResult(CustomerDTO.class).getResponseBody().blockFirst();
     }
 
     public static Customer getTestCustomer() {
