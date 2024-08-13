@@ -84,6 +84,18 @@ public class CustomerEndPointTest {
                 .expectBody().jsonPath("$.size()").value(equalTo(2));
     }
 
+    @Test
+    void testCreateCustomer() {
+        CustomerDTO customerDTO = getSavedTestCustomer();
+
+        webTestClient.post().uri(CustomerRouterConfig.CUSTOMER_PATH)
+                .body(Mono.just(customerDTO), CustomerDTO.class)
+                .header("Content-Type", "application/json")
+                .exchange()
+                .expectStatus().isCreated()
+                .expectHeader().exists("location");
+    }
+
     public static Customer getTestCustomer() {
         return Customer.builder()
                 .customerName("Harmpie")

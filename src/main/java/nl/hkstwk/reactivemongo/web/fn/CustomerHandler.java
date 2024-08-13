@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebInputException;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -46,6 +47,16 @@ public class CustomerHandler {
         }
         return ServerResponse.ok()
                 .body(flux, CustomerDTO.class);
+    }
+
+    public Mono<ServerResponse> createNewCustomer(ServerRequest request) {
+        return customerService.saveCustomer(request.bodyToMono(CustomerDTO.class)
+                        .doOnNext(this::validate))
+                .flatMap(customerDTO -> ServerResponse
+                        .created(UriComponentsBuilder
+                                .fromPath(CustomerRouterConfig.CUSTOMER_PATH_ID)
+                                .build(customerDTO.getId()))
+                        .build());
     }
 
 }

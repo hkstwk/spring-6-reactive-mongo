@@ -23,6 +23,7 @@ public class CustomerRouterConfig {
         return route()
                 .GET(CUSTOMER_PATH, accept(MediaType.APPLICATION_JSON), customerHandler::listCustomers)
                 .GET(CUSTOMER_PATH_ID, accept(MediaType.APPLICATION_JSON), customerHandler::getCustomerById)
+                .POST(CUSTOMER_PATH, accept(MediaType.APPLICATION_JSON), customerHandler::createNewCustomer)
                 .build();
     }
 }
