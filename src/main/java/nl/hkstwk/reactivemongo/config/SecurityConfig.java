@@ -12,7 +12,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-
     @Bean
     @Order(1)
     public SecurityWebFilterChain actuatorSecurityFilterChain(ServerHttpSecurity http) throws Exception{
